@@ -23,7 +23,7 @@ func Parse(buf []byte, isClient bool) (Packet, error) {
 	case Handshake:
 		if isClient {
 			// this is a HandshakeStart
-			return parseObjCbor[HandshakeStart](buf)
+			return parseObjCbor[HandshakeRequest](buf)
 		} else {
 			// server side, so this is a HandshakeResponse
 			return parseObjCbor[HandshakeResponse](buf)

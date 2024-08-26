@@ -9,13 +9,15 @@ import (
 	"github.com/fxamacker/cbor/v2"
 )
 
-type HandshakeStart struct { // pid=1(S→C)
-	ServerCode string `json:"srv"`
-	ClientId   string `json:"cid"`
-	Rand       []byte `json:"rnd"`
+type HandshakeRequest struct { // pid=1(S→C)
+	Ready      bool     `json:"rdy,omitempty"` // ready state. If true, handshake is complete
+	ServerCode string   `json:"srv"`           // short name of server
+	ClientId   string   `json:"cid"`           // name of connection
+	Nonce      []byte   `json:"rnd"`           // random blob
+	Groups     [][]byte `json:"grp"`
 }
 
-func (p *HandshakeStart) Bytes() []byte {
+func (p *HandshakeRequest) Bytes() []byte {
 	buf, err := cbor.Marshal(p)
 	if err != nil {
 		return nil
@@ -24,7 +26,7 @@ func (p *HandshakeStart) Bytes() []byte {
 }
 
 // Respond generates a response to the current handshake start
-func (p *HandshakeStart) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeResponse, error) {
+func (p *HandshakeRequest) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeResponse, error) {
 	pubBin, err := x509.MarshalPKIXPublicKey(s.Public())
 	if err != nil {
 		return nil, err

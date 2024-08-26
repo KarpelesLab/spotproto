@@ -9,11 +9,18 @@ As such, each packet only starts with a single byte identifying the packet type 
 Packet types:
 
 * 0x0 (C→S) Ping / (S→C) pong
-* 0x1 (S→C) Handshake start, including to-be connection ID & server info in a cbor map: `['srv':'srvcode','cid':'srvcode:clientid','rnd':'<random data>']`
+* 0x1 (S→C) Handshake request, including to-be connection ID & server info in a cbor map: `['srv':'srvcode','cid':'srvcode:clientid','rnd':'<random data>']`
 * 0x1 (C→S) Handshake response, cbor map of: `['id':'<signed id card>','sig':'<signature of handshake initial packet>']`. Upon receiving this packet, if the signature is valid, the ID card is registered and connection established.
 * 0x2 (C→S & S→C) Instant message in instant message format (see below)
 
 Each connection has an anonymous name (srvcode:clientid, where clientid is a random printable string), and can also be identified by the sha256 of idcard.Self. If multiple connections are made, messages sent to idcard.Self will be randomly distributed.
+
+## Initial flow
+
+* Upon connection, the server sends Handshake Start
+* The client responds with Handshake Response
+* If the provided IDCard isn't up to date in terms of groups, the server may send a new handshare request with `['grp':[...]]` set. The client must update its ID and try again.
+* The server sends HandshakeRequest with Ready=true
 
 ## Instant message
 
