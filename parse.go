@@ -15,26 +15,28 @@ func Parse(buf []byte, isClient bool) (Packet, error) {
 		return nil, ErrInvalidVersion
 	}
 
+	buf = buf[1:]
+
 	switch pkt {
 	case PingPong:
-		return Ping(buf[1:]), nil
+		return Ping(buf), nil
 	case Handshake:
 		if isClient {
 			// this is a HandshakeStart
-			return parseObj[HandshakeStart](buf[1:])
+			return parseObjCbor[HandshakeStart](buf)
 		} else {
 			// server side, so this is a HandshakeResponse
-			return parseObj[HandshakeResponse](buf[1:])
+			return parseObjCbor[HandshakeResponse](buf)
 		}
 	case InstantMsg:
 		msg := &Message{}
-		return msg, msg.UnmarshalBinary(buf[1:])
+		return msg, msg.UnmarshalBinary(buf)
 	default:
 		return nil, fmt.Errorf("failed to parse message: unknown packet id %x", pkt)
 	}
 }
 
-func parseObj[T any](buf []byte) (*T, error) {
+func parseObjCbor[T any](buf []byte) (*T, error) {
 	var res *T
 	err := cbor.Unmarshal(buf, &res)
 	return res, err
