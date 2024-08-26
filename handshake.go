@@ -19,6 +19,7 @@ func (p *HandshakeStart) Bytes() []byte {
 
 type HandshakeResponse struct {
 	ID  []byte `json:"id"`
+	Key []byte `json:"key"`
 	Sig []byte `json:"sig"`
 }
 
