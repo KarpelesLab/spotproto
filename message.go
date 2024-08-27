@@ -10,7 +10,7 @@ import (
 
 type Message struct {
 	MessageID [16]byte
-	Flags     uint64
+	Flags     uint64 // 1=response (same message id)
 	Recipient string
 	Sender    string
 	Body      []byte
