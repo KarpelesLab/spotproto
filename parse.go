@@ -12,7 +12,7 @@ func Parse(buf []byte, isClient bool) (Packet, error) {
 	}
 	vers, pkt := VersionAndPacket(buf[0])
 	if vers != 0 {
-		return nil, ErrInvalidVersion
+		return nil, fmt.Errorf("%w: %d (packet %d)", ErrInvalidVersion, vers, pkt)
 	}
 
 	buf = buf[1:]
