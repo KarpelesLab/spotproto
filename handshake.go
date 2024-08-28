@@ -15,6 +15,7 @@ type HandshakeRequest struct { // pid=1(S→C)
 	ClientId   string   `json:"cid"`           // name of connection
 	Nonce      []byte   `json:"rnd"`           // random blob
 	Groups     [][]byte `json:"grp"`
+	raw        []byte
 }
 
 func (p *HandshakeRequest) Bytes() []byte {
@@ -22,6 +23,7 @@ func (p *HandshakeRequest) Bytes() []byte {
 	if err != nil {
 		return nil
 	}
+	p.raw = buf
 	return buf
 }
 
@@ -32,8 +34,12 @@ func (p *HandshakeRequest) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeRe
 		return nil, err
 	}
 	if rawBuf == nil {
-		// guess what the rawBuf was, but really we should have the original buffer
-		rawBuf = append([]byte{Handshake}, p.Bytes()...)
+		if p.raw != nil {
+			rawBuf = p.raw
+		} else {
+			// guess what the rawBuf was, but really we should have the original buffer
+			rawBuf = p.Bytes()
+		}
 	}
 	sum := sha256.Sum256(rawBuf)
 	sig, err := s.Sign(rand.Reader, sum[:], crypto.SHA256)
