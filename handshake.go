@@ -3,9 +3,9 @@ package spotproto
 import (
 	"crypto"
 	"crypto/rand"
-	"crypto/sha256"
 	"crypto/x509"
 
+	"github.com/KarpelesLab/cryptutil"
 	"github.com/fxamacker/cbor/v2"
 )
 
@@ -41,8 +41,7 @@ func (p *HandshakeRequest) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeRe
 			rawBuf = p.Bytes()
 		}
 	}
-	sum := sha256.Sum256(rawBuf)
-	sig, err := s.Sign(rand.Reader, sum[:], crypto.SHA256)
+	sig, err := cryptutil.Sign(rand.Reader, s, rawBuf, crypto.SHA256)
 	if err != nil {
 		return nil, err
 	}
