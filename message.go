@@ -8,9 +8,15 @@ import (
 	"io"
 )
 
+const (
+	MsgFlagResponse  = 1 << iota // message is a response (and must not cause any further response to be generated)
+	MsgFlagError                 // message body is an error string
+	MsgFlagNotBottle             // message body is not a bottle
+)
+
 type Message struct {
 	MessageID [16]byte
-	Flags     uint64 // 1=response (same message id)
+	Flags     uint64
 	Recipient string
 	Sender    string
 	Body      []byte
