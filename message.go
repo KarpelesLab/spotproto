@@ -37,6 +37,12 @@ func (msg *Message) UnmarshalBinary(b []byte) error {
 	return msg.ReadFrom(bytes.NewReader(b))
 }
 
+// IsEncrypted returns if the message must be encrypted to be sent. This method can be used in handlers to
+// ensure only encrypted messages are being handled.
+func (msg *Message) IsEncrypted() bool {
+	return msg.Flags&MsgFlagNotBottle == 0
+}
+
 func (msg *Message) ReadFrom(r io.Reader) error {
 	buf := bufio.NewReader(r)
 	_, err := io.ReadFull(buf, msg.MessageID[:])
