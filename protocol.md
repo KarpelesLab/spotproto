@@ -28,14 +28,14 @@ Messages can be sent host to host. These are instant single messages (A→B), an
 
 An address has the form:
 
-    target type:target/endpoint
+    target type.target/endpoint
 
 For example:
 
-    k:j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth
-    k:srvcode:j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth (srvcode can optionally be added)
-    c:srvcode:clientid/eth (srvcode is required when using clientid)
-    g:j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/api:json (send to a random nearby member of this group)
+    k.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth
+    k.srvcode.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth (srvcode can optionally be added)
+    c.srvcode.clientid/eth (srvcode is required when using clientid)
+    g.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/api:json (send to a random nearby member of this group)
 
 Endpoint types:
 

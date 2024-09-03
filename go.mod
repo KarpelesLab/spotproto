@@ -3,7 +3,7 @@ module github.com/KarpelesLab/spotproto
 go 1.22.2
 
 require (
-	github.com/KarpelesLab/cryptutil v0.2.15
+	github.com/KarpelesLab/cryptutil v0.2.24
 	github.com/fxamacker/cbor/v2 v2.7.0
 )
 
