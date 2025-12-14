@@ -9,17 +9,17 @@ As such, each packet only starts with a single byte identifying the packet type 
 Packet types:
 
 * 0x0 (C→S) Ping / (S→C) pong
-* 0x1 (S→C) Handshake request, including to-be connection ID & server info in a cbor map: `['srv':'srvcode','cid':'srvcode:clientid','rnd':'<random data>']`
-* 0x1 (C→S) Handshake response, cbor map of: `['id':'<signed id card>','sig':'<signature of handshake initial packet>']`. Upon receiving this packet, if the signature is valid, the ID card is registered and connection established.
+* 0x1 (S→C) Handshake request, CBOR map with fields: `srv` (server code), `cid` (client ID as `srvcode.clientid`), `rnd` (random nonce), `grp` (optional group list), `rdy` (optional, true when handshake is complete)
+* 0x1 (C→S) Handshake response, CBOR map with fields: `id` (optional client identifier), `key` (PKIX-encoded public key), `sig` (signature over the handshake request). Upon receiving this packet, if the signature is valid, the key is registered and connection established.
 * 0x2 (C→S & S→C) Instant message in instant message format (see below)
 
-Each connection has an anonymous name (srvcode:clientid, where clientid is a random printable string), and can also be identified by the sha256 of idcard.Self. If multiple connections are made, messages sent to idcard.Self will be randomly distributed.
+Each connection has an anonymous name (`srvcode.clientid`, where clientid is a random printable string), and can also be identified by the SHA-256 hash of the public key. If multiple connections are made, messages sent to the key-based ID will be randomly distributed.
 
 ## Initial flow
 
 * Upon connection, the server sends Handshake Start
 * The client responds with Handshake Response
-* If the provided IDCard isn't up to date in terms of groups, the server may send a new handshare request with `['grp':[...]]` set. The client must update its ID and try again.
+* If the provided key isn't up to date in terms of groups, the server may send a new handshake request with the `grp` field set. The client must update its ID and try again.
 * The server sends HandshakeRequest with Ready=true
 
 ## Instant message
@@ -28,14 +28,15 @@ Messages can be sent host to host. These are instant single messages (A→B), an
 
 An address has the form:
 
-    target type.target/endpoint
+    type.target/endpoint
+    type.srvcode.target/endpoint
 
 For example:
 
     k.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth
     k.srvcode.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/eth (srvcode can optionally be added)
-    c.srvcode.clientid/eth (srvcode is required when using clientid)
-    g.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/api:json (send to a random nearby member of this group)
+    c.srvcode.clientid/eth (srvcode is required when using connection-based ID)
+    g.j0NDRmSPa5bfid2pAcUXaxCm2Dlh3TwayItZstwyeqQ/api (send to a random nearby member of this group)
 
 Endpoint types:
 
@@ -50,17 +51,16 @@ Message structure: the message is a structure of the following format:
 * len+sender address
 * body (byte array)
 
-The following flags are defined:
+The following flags are defined (bit positions):
 
-* 1: `MSG_NOTBOTTLE`: body is not an encrypted bottle. Normally messages must be encrypted for recipient and signed by sender using cryptutil.Bottle, however some protocols may skip this for improved efficiency, such as "eth".
+* 1 (bit 0): `MsgFlagResponse` - This is a response message that must not trigger further responses
+* 2 (bit 1): `MsgFlagError` - The message body contains an error string
+* 4 (bit 2): `MsgFlagNotBottle` - Body is not an encrypted bottle. Normally messages must be encrypted for recipient and signed by sender using cryptutil.Bottle, however some protocols may skip this for improved efficiency or when already encrypted by another mechanism
 
 ### Well known instant message endpoints
 
 #### eth
 
-TODO update this.
+The `eth` endpoint is used for network frame tunneling (virtual ethernet). The body is a network frame, typically IPv4 or IPv6, up to 1500 bytes (MTU) but allowed up to 65535 bytes. If a host receives something on the eth endpoint, it should forward the frame to the local tuntap device if one is in use. If no tuntap device is configured, the packet can be ignored.
 
-body is a network frame, typically ipv4 or ipv6, typically up to 1500 bytes but allowed up to 65k. If a host receives something on the eth endpoint it doesn't need to respond to it, but to forward the frame to the local tuntap device if any is in use. If not, the packet can be ignored.
-
-The `eth` protocol uses `MSG_NOTBOTTLE` flag. Instead the body is encrypted using the following method: a ECDSA key is generated and can be used to encrypt multiple packets. Each packet has the following format: public key, IV,
-
+The `eth` protocol uses the `MsgFlagNotBottle` flag since the payload is encrypted using a separate key exchange mechanism rather than the standard Bottle encryption.
