@@ -6,6 +6,9 @@ import (
 	"github.com/fxamacker/cbor/v2"
 )
 
+// Parse decodes a raw buffer into the appropriate Packet type.
+// The isClient parameter indicates whether this is being parsed on the client side,
+// which affects how handshake packets are interpreted.
 func Parse(buf []byte, isClient bool) (Packet, error) {
 	if len(buf) == 0 {
 		return nil, ErrEmptyBuf

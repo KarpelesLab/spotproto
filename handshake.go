@@ -9,15 +9,18 @@ import (
 	"github.com/fxamacker/cbor/v2"
 )
 
-type HandshakeRequest struct { // pid=1(S→C)
-	Ready      bool     `json:"rdy,omitempty"` // ready state. If true, handshake is complete
-	ServerCode string   `json:"srv"`           // short name of server
-	ClientId   string   `json:"cid"`           // name of connection
-	Nonce      []byte   `json:"rnd"`           // random blob
-	Groups     [][]byte `json:"grp"`
+// HandshakeRequest is sent from server to client to initiate the handshake.
+// It contains server identification and a nonce for authentication.
+type HandshakeRequest struct {
+	Ready      bool     `json:"rdy,omitempty"` // Ready indicates handshake completion when true
+	ServerCode string   `json:"srv"`           // ServerCode is the short name of the server
+	ClientId   string   `json:"cid"`           // ClientId is the assigned connection identifier
+	Nonce      []byte   `json:"rnd"`           // Nonce is a random blob for authentication
+	Groups     [][]byte `json:"grp"`           // Groups the client belongs to
 	raw        []byte
 }
 
+// Bytes serializes the handshake request to CBOR format.
 func (p *HandshakeRequest) Bytes() []byte {
 	buf, err := cbor.Marshal(p)
 	if err != nil {
@@ -52,12 +55,15 @@ func (p *HandshakeRequest) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeRe
 	return res, nil
 }
 
-type HandshakeResponse struct { // pid=1(C→S)
-	ID  []byte `json:"id"`
-	Key []byte `json:"key"`
-	Sig []byte `json:"sig"`
+// HandshakeResponse is sent from client to server in response to a HandshakeRequest.
+// It contains the client's public key and a signature proving key ownership.
+type HandshakeResponse struct {
+	ID  []byte `json:"id"`  // ID is an optional client identifier
+	Key []byte `json:"key"` // Key is the client's PKIX-encoded public key
+	Sig []byte `json:"sig"` // Sig is the signature over the request nonce
 }
 
+// Bytes serializes the handshake response to CBOR format.
 func (p *HandshakeResponse) Bytes() []byte {
 	buf, err := cbor.Marshal(p)
 	if err != nil {
