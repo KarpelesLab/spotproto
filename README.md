@@ -38,7 +38,7 @@ Messages contain:
 
 ### End-to-End Encryption
 
-Message bodies are encrypted between clients using their exchanged public keys. The server acts only as a relay and cannot decrypt message contents. The `MsgFlagNotBottle` flag indicates when a message is sent unencrypted (e.g., for system messages).
+Message bodies are encrypted between clients using their exchanged public keys. The server acts only as a relay and cannot decrypt message contents. The `MsgFlagNotBottle` flag bypasses end-to-end encryption for cases where the payload is already encrypted by another protocol, or when performance is prioritized over E2E encryption (the connection to the server is still encrypted).
 
 ## License
 

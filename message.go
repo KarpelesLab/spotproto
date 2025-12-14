@@ -12,7 +12,7 @@ import (
 const (
 	MsgFlagResponse  = 1 << iota // MsgFlagResponse indicates this is a response that must not trigger further responses
 	MsgFlagError                 // MsgFlagError indicates the message body contains an error string
-	MsgFlagNotBottle             // MsgFlagNotBottle indicates the message body is not encrypted
+	MsgFlagNotBottle             // MsgFlagNotBottle bypasses E2E encryption (for pre-encrypted payloads or performance)
 )
 
 // Message represents an instant message packet exchanged between clients.
