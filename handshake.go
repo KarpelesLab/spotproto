@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 
-	"github.com/KarpelesLab/cryptutil"
+	"github.com/BottleFmt/gobottle"
 	"github.com/fxamacker/cbor/v2"
 )
 
@@ -44,7 +44,7 @@ func (p *HandshakeRequest) Respond(rawBuf []byte, s crypto.Signer) (*HandshakeRe
 			rawBuf = p.Bytes()
 		}
 	}
-	sig, err := cryptutil.Sign(rand.Reader, s, rawBuf, crypto.SHA256)
+	sig, err := gobottle.Sign(rand.Reader, s, rawBuf, crypto.SHA256)
 	if err != nil {
 		return nil, err
 	}

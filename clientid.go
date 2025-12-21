@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 
-	"github.com/KarpelesLab/cryptutil"
+	"github.com/BottleFmt/gobottle"
 )
 
 // ClientId represents a client identifier in the protocol.
@@ -25,7 +25,7 @@ func (c *ClientId) String() string {
 
 // NewClientIdFromId creates a new key-based ClientId from a cryptutil IDCard.
 // The target is derived from the SHA-256 hash of the IDCard's public key.
-func NewClientIdFromId(id *cryptutil.IDCard) *ClientId {
+func NewClientIdFromId(id *gobottle.IDCard) *ClientId {
 	h := sha256.Sum256(id.Self)
 	return &ClientId{Type: 'k', Target: base64.RawURLEncoding.EncodeToString(h[:])}
 }
